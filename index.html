@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Music Player
-    </title>
+    <title>Music Player</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://kit.fontawesome.com/88188fbf65.js" crossorigin="anonymous"></script>
 </head>
@@ -16,67 +15,96 @@
                     <i class="fa-solid fa-angle-left"></i>
                 </div>
                 <div class="circle">
-                    <i class="fa-solid fa-bars"></i>                </div>
+                    <i class="fa-solid fa-bars"></i>
+                </div>
             </nav>
 
-            <img src="images/thumbnail.jpg" class="song-img" alt="">
-            <h1>Evanda-Enaku-Custody</h1>
-            <p>Santhosh Narayanan</p>
+            <img id="song-img" src="images/thumbnail1.jpg" class="song-img" alt="Song Thumbnail">
+            <h1 id="song-title">Evanda-Enaku-Custody</h1>
+            <p id="song-artist">Santhosh Narayanan</p>
 
-            <audio  id="song">
-                <source src="images/Evanda-Enakku.mp3" type="audio/mpeg">
+            <audio id="song">
+                <source id="song-source" src="songs/song1.mp3" type="audio/mpeg">
             </audio>
             <input type="range" value="0" id="progress">
 
             <div class="controls">
-                <div><i class="fa-solid fa-backward"></i></div>
-                <div onclick="playPause()"><i class="fa-solid fa-play" id="ctrlIcon"></i></div>
-                <div><i class="fa-solid fa-forward"></i></div>
-
-
+                <div onclick="prevSong()"><i class="fa-solid fa-backward"></i></div>
+                <div onclick="playPause()">
+                    <i class="fa-solid fa-play" id="ctrlIcon"></i>
+                </div>
+                <div onclick="nextSong()"><i class="fa-solid fa-forward"></i></div>
             </div>
         </div>
     </div>
 
-<!-- -------------------javasxript---------------------- -->
+    <!-- JavaScript -->
+    <script>
+        let progress = document.getElementById("progress");
+        let song = document.getElementById("song");
+        let songSource = document.getElementById("song-source");
+        let songImg = document.getElementById("song-img");
+        let songTitle = document.getElementById("song-title");
+        let songArtist = document.getElementById("song-artist");
+        let ctrlIcon = document.getElementById("ctrlIcon");
 
-<script>
+        let songs = [
+            { title: "Evanda-Enaku-Custody", artist: "Santhosh Narayanan", src: "images/Evanda-Enakku.mp3", img: "images/mahan.jpg" },
+            { title: " Big_Dawgs", artist: "HanumanKind 2", src: "images/hanumankind_big_dawgs.mp3", img: "images/bigdawgs.png" },
+        ];
 
-let progress = document.getElementById("progress");
-let song = document.getElementById("song");
-let ctrlIcon = document.getElementById("ctrlIcon");
+        let currentSongIndex = 0;
 
-song.onloadedmetadata = function () {
-    progress.max = song.duration;
-}
+        // Load song metadata
+        song.onloadedmetadata = function () {
+            progress.max = song.duration;
+        };
 
-function playPause() {
-    if (song.paused) {
-        song.play();
-        ctrlIcon.classList.toggle("fa-play");
-        ctrlIcon.classList.toggle("fa-pause");
-    } else {
-        song.pause();
-        ctrlIcon.classList.remove("fa-pause");
-        ctrlIcon.classList.add("fa-play");
-    }
-}
+        function loadSong(index) {
+            let currentSong = songs[index];
+            songSource.src = currentSong.src;
+            songTitle.innerText = currentSong.title;
+            songArtist.innerText = currentSong.artist;
+            songImg.src = currentSong.img;
+            song.load(); 
+            playPause(true); // Auto play when switching songs
+        }
 
-song.ontimeupdate = function () {
-    progress.value = song.currentTime;
-};
+        function playPause(autoPlay = false) {
+            if (song.paused && !autoPlay) {
+                song.play();
+                ctrlIcon.classList.replace("fa-play", "fa-pause");
+            } else if (!song.paused && !autoPlay) {
+                song.pause();
+                ctrlIcon.classList.replace("fa-pause", "fa-play");
+            } else if (autoPlay) {
+                song.play();
+                ctrlIcon.classList.replace("fa-play", "fa-pause");
+            }
+        }
 
-progress.oninput = function () {
-    song.currentTime = progress.value;
-};
+        function nextSong() {
+            currentSongIndex = (currentSongIndex + 1) % songs.length;
+            loadSong(currentSongIndex);
+        }
 
-song.onended = function () {
-    ctrlIcon.classList.remove("fa-pause");
-    ctrlIcon.classList.add("fa-play");
-};
+        function prevSong() {
+            currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
+            loadSong(currentSongIndex);
+        }
 
+        song.ontimeupdate = function () {
+            progress.value = song.currentTime;
+        };
 
-</script>
-    
+        progress.oninput = function () {
+            song.currentTime = progress.value;
+        };
+
+        song.onended = function () {
+            nextSong(); // Auto play next song when current song ends
+        };
+
+    </script>
 </body>
 </html>
